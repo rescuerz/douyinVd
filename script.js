@@ -7,15 +7,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const clearBtn = document.getElementById("clearBtn");
   const loadingIndicator = document.getElementById("loadingIndicator");
   const resultContainer = document.getElementById("resultContainer");
-  const videoPlayer = document.getElementById("videoPlayer");
+  const mediaContainer = document.getElementById("mediaContainer");
   const imageContainer = document.getElementById("imageContainer");
   const playBtn = document.getElementById("playBtn");
   const downloadBtn = document.getElementById("downloadBtn");
   const copyLinkBtn = document.getElementById("copyLinkBtn");
   const shareBtn = document.getElementById("shareBtn");
   const newParseBtn = document.getElementById("newParseBtn");
-  const fullscreenBtn = document.getElementById("fullscreenBtn");
-  const pipBtn = document.getElementById("pipBtn");
   const videoInfo = document.getElementById("videoInfo");
   const toastContainer = document.getElementById("toastContainer");
   const downloadModal = document.getElementById("downloadModal");
@@ -36,6 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let currentVideoUrl = "";
   let currentVideoData = null;
   let isLoading = false;
+  let originalUrlValue = "";
 
   // 初始化
   init();
@@ -65,14 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
     copyLinkBtn.addEventListener("click", handleCopyClick);
     shareBtn.addEventListener("click", handleShareClick);
     newParseBtn.addEventListener("click", handleNewParseClick);
-    fullscreenBtn.addEventListener("click", handleFullscreenClick);
-    pipBtn.addEventListener("click", handlePipClick);
     closeModal.addEventListener("click", handleCloseModal);
-
-    // 视频播放器事件
-    videoPlayer.addEventListener("loadstart", handleVideoLoadStart);
-    videoPlayer.addEventListener("loadeddata", handleVideoLoaded);
-    videoPlayer.addEventListener("error", handleVideoError);
   }
 
   function handleInputChange() {
@@ -167,6 +159,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function startParsing(url) {
     isLoading = true;
+    originalUrlValue = url; // 保存原始URL
     parseBtn.disabled = true;
     parseBtn.querySelector(".btn-text").textContent = "解析中...";
 
@@ -198,22 +191,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 事件处理函数
   function handlePlayClick() {
-    if (!currentVideoUrl) return;
+    if (!originalUrlValue) {
+      showToast("无法获取原始链接", "error");
+      return;
+    }
 
     if (currentVideoData && currentVideoData.type === "video") {
-      // 滚动到视频播放器位置
-      videoPlayer.scrollIntoView({ behavior: "smooth", block: "center" });
-
-      // 开始播放视频
-      videoPlayer
-        .play()
-        .then(() => {
-          showToast("开始播放视频", "success");
-        })
-        .catch((error) => {
-          console.error("播放失败:", error);
-          showToast("视频播放失败，请尝试下载", "error");
-        });
+      // 在新标签页中打开原始抖音页面
+      try {
+        window.open(originalUrlValue, "_blank");
+        showToast("正在新标签页中打开抖音页面", "success");
+      } catch (error) {
+        console.error("打开链接失败:", error);
+        showToast("无法打开抖音页面，请尝试复制链接手动打开", "error");
+      }
     } else if (currentVideoData && currentVideoData.type === "img") {
       showToast("这是图片内容，无法播放", "info");
     }
@@ -352,45 +343,13 @@ document.addEventListener("DOMContentLoaded", function () {
     videoUrlInput.focus();
   }
 
-  function handleFullscreenClick() {
-    if (videoPlayer.requestFullscreen) {
-      videoPlayer.requestFullscreen();
-    } else if (videoPlayer.webkitRequestFullscreen) {
-      videoPlayer.webkitRequestFullscreen();
-    } else if (videoPlayer.msRequestFullscreen) {
-      videoPlayer.msRequestFullscreen();
-    }
-  }
-
-  function handlePipClick() {
-    if (videoPlayer.requestPictureInPicture) {
-      videoPlayer.requestPictureInPicture().catch((err) => {
-        showToast("画中画模式不可用", "warning");
-      });
-    } else {
-      showToast("您的浏览器不支持画中画功能", "warning");
-    }
-  }
+  // 移除了全屏和画中画功能，不再需要
 
   function handleCloseModal() {
     hideDownloadModal();
   }
 
-  function handleVideoLoadStart() {
-    showToast("视频开始加载...", "info");
-  }
-
-  function handleVideoLoaded() {
-    showToast("视频加载完成", "success");
-  }
-
-  function handleVideoError() {
-    console.error("Video error:", videoPlayer.error);
-    showToast(
-      "视频预览加载失败，但仍可下载。点击下载按钮获取视频文件。",
-      "warning"
-    );
-  }
+  // 移除了视频播放器事件处理函数，不再需要
 
   // API调用函数
   async function fetchVideoInfo(url) {
@@ -446,45 +405,28 @@ document.addEventListener("DOMContentLoaded", function () {
     if (data.type === "video" && data.video_url) {
       currentVideoUrl = data.video_url;
 
-      // 尝试设置视频源 - 使用代理流
-      try {
-        const proxyStreamUrl = `?stream=${encodeURIComponent(data.video_url)}`;
-        videoPlayer.src = proxyStreamUrl;
-        videoPlayer.load();
+      // 隐藏媒体容器，只显示操作按钮
+      mediaContainer.classList.add("hidden");
 
-        // 添加视频加载超时处理
-        const loadTimeout = setTimeout(() => {
-          console.warn("Video loading timeout, but download should still work");
-          showToast("视频预览加载超时，但下载功能正常", "info");
-        }, 10000);
-
-        videoPlayer.addEventListener(
-          "loadeddata",
-          () => {
-            clearTimeout(loadTimeout);
-          },
-          { once: true }
-        );
-      } catch (error) {
-        console.error("Error setting video source:", error);
-        showToast("视频预览不可用，但可以正常下载", "info");
-      }
-
-      // 视频解析完成，用户可以选择播放或下载
-      showToast("视频解析完成！您可以播放或下载视频", "success");
+      // 视频解析完成，用户可以点击播放按钮在新标签页中观看
+      showToast("视频解析完成！点击播放按钮在新标签页中观看", "success");
     } else if (
       data.type === "img" &&
       data.image_url_list &&
       data.image_url_list.length > 0
     ) {
-      // 如果是图片，创建图片展示
+      // 如果是图片，显示图片
       currentVideoUrl = data.image_url_list[0];
-      // 替换视频播放器为图片
-      const imgHtml = `<img src="${data.image_url_list[0]}" style="width:100%;height:auto;position:absolute;top:0;left:0;" alt="抖音图片">`;
-      videoPlayer.style.display = "none";
-      videoPlayer.insertAdjacentHTML("afterend", imgHtml);
 
-      // 图片解析完成，用户可以选择查看或下载
+      // 显示图片容器
+      mediaContainer.classList.remove("hidden");
+      imageContainer.classList.remove("hidden");
+
+      // 创建图片展示
+      const imgHtml = `<img src="${data.image_url_list[0]}" style="width:100%;height:auto;position:absolute;top:0;left:0;" alt="抖音图片">`;
+      imageContainer.innerHTML = imgHtml;
+
+      // 图片解析完成，用户可以查看或下载
       showToast("图片解析完成！您可以查看或下载图片", "success");
     }
 
