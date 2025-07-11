@@ -1,14 +1,17 @@
-FROM denoland/deno:latest
+FROM denoland/deno:1.40.2
 
-# Create working directory
+# 设置工作目录
 WORKDIR /app
 
-# Copy source
+# 设置环境变量
+ENV PORT=8000
+
+# 复制所有文件
 COPY . .
 
-# Compile the main app
-RUN deno cache main.ts
+# 暴露端口
+EXPOSE 8000
 
-# Run the app
-CMD ["deno", "run", "--allow-net", "main.ts"]
+# 启动应用（运行时下载依赖）
+CMD ["deno", "run", "--allow-net", "--allow-read", "main.ts"]
 

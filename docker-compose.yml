@@ -1,0 +1,26 @@
+services:
+  douyin-downloader:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: douyin-video-downloader
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      # 可选：挂载日志目录
+      - ./logs:/app/logs
+    networks:
+      - douyin-network
+
+networks:
+  douyin-network:
+    driver: bridge
