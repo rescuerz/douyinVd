@@ -1,3 +1,5 @@
+# @format
+
 services:
   douyin-downloader:
     build:
@@ -5,12 +7,12 @@ services:
       dockerfile: Dockerfile
     container_name: douyin-video-downloader
     ports:
-      - "8000:8000"
+      - "9527:9527"
     environment:
-      - PORT=8000
+      - PORT=9527
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:9527 || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

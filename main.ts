@@ -58,4 +58,13 @@ async function handleRequest(req: Request): Promise<Response> {
   }
 }
 
-Deno.serve(handleRequest);
+const port = parseInt(Deno.env.get("PORT") || "9527");
+console.log(`Starting server on port ${port}`);
+
+Deno.serve(
+  {
+    port: port,
+    hostname: "0.0.0.0",
+  },
+  handleRequest
+);

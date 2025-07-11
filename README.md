@@ -59,31 +59,7 @@ interface DouyinVideoInfo {
 
 本项目支持多种部署方式，方便快速上线使用。
 
-### 1. Deno Deploy 部署
-
-- 进入 [Deno Deploy](https://dash.deno.com/) 控制台。
-- 创建新项目，选择可执行文件为 [main.ts](./main.ts)。
-- 部署后即可通过 HTTPS 访问服务。
-
-### 2. Cloudflare Workers 部署
-
-- 安装 [`denoflare`](https://github.com/skymethod/denoflare) CLI 工具。
-- 在项目根目录配置 `.denoflare` 文件。
-- 执行部署命令：
-  ```bash
-  denoflare push cfworker.ts
-  ```
-- 部署后到 worker 设置开启访问即可
-- 参考文档：[Cloudflare Workers 教程](https://docs.deno.com/examples/cloudflare_workers_tutorial/)
-- 如果怕麻烦或者出现其他错误，可以直接使用 [cfbuild.js](./cfbuild.js) 文件，这个是编译后的文件，可以直接部署 cf worker
-
-### 3. vercel 部署
-
-- fork 本项目后，进入 vercel dashboard 导入项目
-- 直接点击 deploy 即可部署
-- 访问链接为 https://yourdomain.vercel.app/api/hello?url=https://v.douyin.com/xxxx/
-
-### 4. Docker 部署（推荐）
+### 1. Docker 部署（推荐）
 
 #### 快速开始
 
@@ -111,11 +87,6 @@ interface DouyinVideoInfo {
 
 启动成功后，在浏览器中访问：http://localhost:8000
 
-#### 环境要求
-
-- Docker 20.10+
-- Docker Compose 2.0+
-- 至少 512MB 内存
 
 #### 常用命令
 

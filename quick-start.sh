@@ -41,7 +41,7 @@ if docker-compose -f docker-compose.yml ps | grep -q "Up"; then
     echo -e "${GREEN}🎉 服务启动成功！${NC}"
     echo ""
     echo "📱 访问地址:"
-    echo "   http://localhost:8000"
+    echo "   http://localhost:9527"
     echo ""
     echo "🔧 管理命令:"
     echo "   查看状态: docker-compose -f docker-compose.yml ps"
@@ -49,7 +49,7 @@ if docker-compose -f docker-compose.yml ps | grep -q "Up"; then
     echo "   停止服务: docker-compose -f docker-compose.yml down"
     echo "   重启服务: docker-compose -f docker-compose.yml restart"
     echo ""
-    echo -e "${YELLOW}💡 提示: 在浏览器中打开 http://localhost:8000 开始使用${NC}"
+    echo -e "${YELLOW}💡 提示: 在浏览器中打开 http://localhost:9527 开始使用${NC}"
 else
     echo -e "${RED}❌ 服务启动失败，请检查日志${NC}"
     docker-compose -f docker-compose.yml logs
